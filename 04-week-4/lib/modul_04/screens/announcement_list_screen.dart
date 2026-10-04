@@ -180,8 +180,12 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text('Portal Pengumuman TRPL'),
+        backgroundColor: const Color(0xFF0284C7),
+        foregroundColor: Colors.white,
+        centerTitle: true,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.refresh),
