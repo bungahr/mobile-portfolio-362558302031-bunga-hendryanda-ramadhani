@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -22,70 +23,50 @@ void main() {
     );
   }
 
-  testWidgets('Menampilkan loading lalu data', (WidgetTester tester) async {
-    final AnnouncementApi api = AnnouncementApi(modeSimulasi: true);
-
-    await tester.pumpWidget(
-      MaterialApp(home: AnnouncementListScreen(api: api)),
-    );
-
-    expect(find.text('Sedang memuat pengumuman...'), findsOneWidget);
-
-    await tester.pump(const Duration(seconds: 1));
-    await tester.pump();
-
-    expect(find.byType(AnnouncementCard), findsWidgets);
-  });
-
-  testWidgets('Menampilkan error dari server', (WidgetTester tester) async {
+  test('Latihan 1 - TimeoutException ditangani', () async {
     final MockClient client = MockClient((Request request) async {
-      return Response('Server Error', 500);
+      await Future<void>.delayed(const Duration(seconds: 2));
+
+      return Response('[]', 200);
     });
 
     final AnnouncementApi api = AnnouncementApi(client: client);
 
-    await tester.pumpWidget(
-      MaterialApp(home: AnnouncementListScreen(api: api)),
+    await expectLater(
+      api.ambilPengumuman(),
+      throwsA(
+        predicate<Object>(
+          (Object error) => error.toString().contains('timeout'),
+        ),
+      ),
     );
 
-    await tester.pumpAndSettle();
-
-    expect(find.text('Gagal memuat pengumuman'), findsOneWidget);
-
-    expect(find.textContaining('status 500'), findsOneWidget);
-
-    expect(find.text('Coba Lagi'), findsOneWidget);
+    api.tutup();
   });
 
-  testWidgets('Filter kategori menampilkan keadaan kosong', (
+  test('Latihan 1 - ClientException ditangani', () async {
+    final MockClient client = MockClient((Request request) async {
+      throw ClientException('Koneksi gagal');
+    });
+
+    final AnnouncementApi api = AnnouncementApi(client: client);
+
+    await expectLater(
+      api.ambilPengumuman(),
+      throwsA(
+        predicate<Object>(
+          (Object error) =>
+              error.toString().contains('Gagal terhubung ke server'),
+        ),
+      ),
+    );
+
+    api.tutup();
+  });
+
+  testWidgets('Latihan 2 - penghitung percobaan bertambah', (
     WidgetTester tester,
   ) async {
-    final MockClient client = MockClient((Request request) async {
-      return Response(
-        jsonEncode(dataPosts(1)),
-        200,
-        headers: <String, String>{'content-type': 'application/json'},
-      );
-    });
-
-    final AnnouncementApi api = AnnouncementApi(client: client);
-
-    await tester.pumpWidget(
-      MaterialApp(home: AnnouncementListScreen(api: api)),
-    );
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Beasiswa'));
-    await tester.pumpAndSettle();
-
-    expect(
-      find.text('Belum ada pengumuman untuk kategori Beasiswa.'),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('Menekan kartu membuka detail', (WidgetTester tester) async {
     final MockClient client = MockClient((Request request) async {
       return Response(
         jsonEncode(dataPosts(10)),
@@ -102,13 +83,16 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Pengumuman 1'));
+    expect(find.text('Portal Pengumuman TRPL (0)'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.refresh));
+
     await tester.pumpAndSettle();
 
-    expect(find.byType(AnnouncementDetailScreen), findsOneWidget);
+    expect(find.text('Portal Pengumuman TRPL (1)'), findsOneWidget);
   });
 
-  testWidgets('Tombol refresh mengirim request baru', (
+  testWidgets('Latihan 3 - pencarian judul tidak mengirim request baru', (
     WidgetTester tester,
   ) async {
     int jumlahRequest = 0;
@@ -133,9 +117,95 @@ void main() {
 
     expect(jumlahRequest, 1);
 
-    await tester.tap(find.byIcon(Icons.refresh));
+    final Finder searchField = find.byType(TextField);
+
+    await tester.enterText(searchField, 'Pengumuman 9');
+
+    await tester.pump();
+
+    expect(jumlahRequest, 1);
+
+    expect(find.byType(AnnouncementCard), findsOneWidget);
+
+    expect(find.text('Pengumuman 8'), findsNothing);
+  });
+
+  testWidgets('Latihan 4 - refresh tetap menampilkan daftar', (
+    WidgetTester tester,
+  ) async {
+    final Completer<Response> completer = Completer<Response>();
+
+    int jumlahRequest = 0;
+
+    final MockClient client = MockClient((Request request) async {
+      jumlahRequest++;
+
+      if (jumlahRequest == 1) {
+        return Response(
+          jsonEncode(dataPosts(10)),
+          200,
+          headers: <String, String>{'content-type': 'application/json'},
+        );
+      }
+
+      return completer.future;
+    });
+
+    final AnnouncementApi api = AnnouncementApi(client: client);
+
+    await tester.pumpWidget(
+      MaterialApp(home: AnnouncementListScreen(api: api)),
+    );
+
     await tester.pumpAndSettle();
 
-    expect(jumlahRequest, 2);
+    await tester.tap(find.byIcon(Icons.refresh));
+
+    await tester.pump();
+
+    expect(find.byType(AnnouncementCard), findsWidgets);
+
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+
+    completer.complete(
+      Response(
+        jsonEncode(dataPosts(10)),
+        200,
+        headers: <String, String>{'content-type': 'application/json'},
+      ),
+    );
+
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('Latihan 5 - detail menerima jumlah kategori', (
+    WidgetTester tester,
+  ) async {
+    final MockClient client = MockClient((Request request) async {
+      return Response(
+        jsonEncode(dataPosts(10)),
+        200,
+        headers: <String, String>{'content-type': 'application/json'},
+      );
+    });
+
+    final AnnouncementApi api = AnnouncementApi(client: client);
+
+    await tester.pumpWidget(
+      MaterialApp(home: AnnouncementListScreen(api: api)),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Pengumuman 1'));
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AnnouncementDetailScreen), findsOneWidget);
+
+    expect(
+      find.textContaining('pengumuman berada di kategori'),
+      findsOneWidget,
+    );
   });
 }

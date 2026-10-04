@@ -3,9 +3,14 @@ import 'package:flutter/material.dart';
 import '../models/announcement.dart';
 
 class AnnouncementDetailScreen extends StatelessWidget {
-  final Announcement announcement;
+  const AnnouncementDetailScreen({
+    super.key,
+    required this.announcement,
+    required this.jumlahKategori,
+  });
 
-  const AnnouncementDetailScreen({super.key, required this.announcement});
+  final Announcement announcement;
+  final int jumlahKategori;
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +22,10 @@ class AnnouncementDetailScreen extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Kategori dan tanggal
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -62,9 +66,9 @@ class AnnouncementDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
+
             const SizedBox(height: 16),
 
-            // Judul
             Text(
               announcement.title,
               style: const TextStyle(
@@ -74,9 +78,9 @@ class AnnouncementDetailScreen extends StatelessWidget {
                 height: 1.3,
               ),
             ),
+
             const SizedBox(height: 12),
 
-            // Penulis & info baca
             Row(
               children: [
                 const CircleAvatar(
@@ -107,9 +111,43 @@ class AnnouncementDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
+
+            const SizedBox(height: 16),
+
+            Card(
+              elevation: 0,
+              child: ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFFE0F2FE),
+                  child: Icon(
+                    Icons.category_outlined,
+                    color: Color(0xFF0284C7),
+                  ),
+                ),
+                title: const Text(
+                  'Ringkasan Kategori',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  '$jumlahKategori pengumuman berada di '
+                  'kategori ${announcement.category}.',
+                ),
+              ),
+            ),
+
             const Divider(height: 32, color: Color(0xFFE2E8F0)),
 
-            // Konten pengumuman
+            const Text(
+              'Isi Pengumuman',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
             Text(
               announcement.content,
               style: const TextStyle(

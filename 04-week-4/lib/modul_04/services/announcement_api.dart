@@ -18,7 +18,7 @@ class AnnouncementApi {
   final bool modeSimulasi;
 
   static const String baseUrl = 'https://jsonplaceholder.typicode.com';
-  static const Duration batasWaktu = Duration(seconds: 10);
+  static const Duration batasWaktu = Duration(seconds: 1);
 
   static const List<String> daftarKategori = <String>[
     'Akademik',

@@ -8,7 +8,6 @@ import 'announcement_detail_screen.dart';
 class AnnouncementListScreen extends StatefulWidget {
   const AnnouncementListScreen({super.key, this.api});
 
-  /// Dapat disuntikkan dari luar (widget test atau demo offline).
   final AnnouncementApi? api;
 
   @override
@@ -28,7 +27,13 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
 
   late Future<List<Announcement>> _futurePengumuman;
 
+  List<Announcement>? _dataTersimpan;
+
   String _kategoriTerpilih = 'Semua';
+  String _kataPencarian = '';
+
+  int _percobaan = 0;
+  bool _sedangMenyegarkan = false;
 
   @override
   void initState() {
@@ -43,6 +48,53 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
   }
 
   Future<void> _muatUlang() async {
+    if (_sedangMenyegarkan) {
+      return;
+    }
+
+    setState(() {
+      _percobaan++;
+      _sedangMenyegarkan = true;
+    });
+
+    try {
+      final List<Announcement> dataBaru = await _api.ambilPengumuman();
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _dataTersimpan = dataBaru;
+        _sedangMenyegarkan = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _sedangMenyegarkan = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+        ),
+      );
+    }
+  }
+
+  Future<void> _cobaLagi() async {
+    if (_sedangMenyegarkan) {
+      return;
+    }
+
+    setState(() {
+      _percobaan++;
+      _sedangMenyegarkan = true;
+    });
+
     final Future<List<Announcement>> futureBaru = _api.ambilPengumuman();
 
     setState(() {
@@ -50,24 +102,87 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
     });
 
     try {
-      await futureBaru;
+      final List<Announcement> dataBaru = await futureBaru;
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _dataTersimpan = dataBaru;
+        _sedangMenyegarkan = false;
+      });
     } catch (_) {
-      // Error sudah ditangani FutureBuilder lewat snapshot.hasError.
-      // Blok catch ini mencegah unhandled exception.
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _sedangMenyegarkan = false;
+      });
     }
   }
 
   void _pilihKategori(String kategori) {
-    if (kategori == _kategoriTerpilih) return;
+    if (kategori == _kategoriTerpilih) {
+      return;
+    }
 
-    setState(() => _kategoriTerpilih = kategori);
+    setState(() {
+      _kategoriTerpilih = kategori;
+    });
   }
 
-  void _bukaDetail(Announcement announcement) {
+  void _bukaDetail(Announcement announcement, List<Announcement> semua) {
+    final int jumlahKategori = semua
+        .where(
+          (Announcement item) =>
+              item.category.toLowerCase() ==
+              announcement.category.toLowerCase(),
+        )
+        .length;
+
     Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => AnnouncementDetailScreen(announcement: announcement),
+        builder: (_) => AnnouncementDetailScreen(
+          announcement: announcement,
+          jumlahKategori: jumlahKategori,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBarisPencarian() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: TextField(
+        onChanged: (String value) {
+          setState(() {
+            _kataPencarian = value;
+          });
+        },
+        decoration: InputDecoration(
+          hintText: 'Cari berdasarkan judul...',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: _kataPencarian.isEmpty
+              ? null
+              : IconButton(
+                  tooltip: 'Hapus pencarian',
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    setState(() {
+                      _kataPencarian = '';
+                    });
+                  },
+                ),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+        ),
       ),
     );
   }
@@ -125,10 +240,13 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text(error.toString(), textAlign: TextAlign.center),
+            Text(
+              error.toString().replaceFirst('Exception: ', ''),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 20),
             FilledButton.icon(
-              onPressed: _muatUlang,
+              onPressed: _cobaLagi,
               icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
             ),
@@ -139,6 +257,13 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
   }
 
   Widget _buildKosong() {
+    final String pesan = _kataPencarian.isEmpty
+        ? 'Belum ada pengumuman untuk kategori '
+              '$_kategoriTerpilih.'
+        : 'Tidak ada pengumuman untuk kategori '
+              '$_kategoriTerpilih dengan judul '
+              '"$_kataPencarian".';
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -148,8 +273,7 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
             const Icon(Icons.inbox_outlined, size: 64),
             const SizedBox(height: 16),
             Text(
-              'Belum ada pengumuman untuk kategori '
-              '$_kategoriTerpilih.',
+              pesan,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16),
             ),
@@ -159,7 +283,7 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
     );
   }
 
-  Widget _buildDaftar(List<Announcement> pengumuman) {
+  Widget _buildDaftar(List<Announcement> pengumuman, List<Announcement> semua) {
     return RefreshIndicator(
       onRefresh: _muatUlang,
       child: ListView.builder(
@@ -170,7 +294,9 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
 
           return AnnouncementCard(
             announcement: announcement,
-            onTap: () => _bukaDetail(announcement),
+            onTap: () {
+              _bukaDetail(announcement, semua);
+            },
           );
         },
       ),
@@ -182,10 +308,20 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Portal Pengumuman TRPL'),
+        title: Text('Portal Pengumuman TRPL ($_percobaan)'),
         backgroundColor: const Color(0xFF0284C7),
         foregroundColor: Colors.white,
         centerTitle: true,
+        bottom: _sedangMenyegarkan
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(3),
+                child: LinearProgressIndicator(
+                  minHeight: 3,
+                  color: Colors.white,
+                  backgroundColor: Color(0xFF7DD3FC),
+                ),
+              )
+            : null,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -196,6 +332,7 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
       ),
       body: Column(
         children: <Widget>[
+          _buildBarisPencarian(),
           _buildBarisFilter(),
           const Divider(height: 1),
           Expanded(
@@ -206,36 +343,45 @@ class _AnnouncementListScreenState extends State<AnnouncementListScreen> {
                     BuildContext context,
                     AsyncSnapshot<List<Announcement>> snapshot,
                   ) {
-                    // ── Keadaan 1: LOADING ─────────────────────
+                    // Loading awal
                     if (snapshot.connectionState != ConnectionState.done) {
                       return _buildMemuat();
                     }
 
-                    // ── Keadaan 2: ERROR ───────────────────────
+                    // Error awal / retry
                     if (snapshot.hasError) {
                       return _buildGagal(snapshot.error!);
                     }
 
-                    // ── Keadaan 3 & 4: KOSONG / BERHASIL ──────
                     final List<Announcement> semua =
-                        snapshot.data ?? const <Announcement>[];
+                        _dataTersimpan ??
+                        snapshot.data ??
+                        const <Announcement>[];
 
-                    final List<Announcement> tampil =
-                        _kategoriTerpilih == 'Semua'
-                        ? semua
-                        : semua
-                              .where(
-                                (Announcement item) =>
-                                    item.category.toLowerCase() ==
-                                    _kategoriTerpilih.toLowerCase(),
-                              )
-                              .toList(growable: false);
+                    final String kataKunci = _kataPencarian
+                        .trim()
+                        .toLowerCase();
+
+                    final List<Announcement> tampil = semua
+                        .where((Announcement item) {
+                          final bool cocokKategori =
+                              _kategoriTerpilih == 'Semua' ||
+                              item.category.toLowerCase() ==
+                                  _kategoriTerpilih.toLowerCase();
+
+                          final bool cocokJudul =
+                              kataKunci.isEmpty ||
+                              item.title.toLowerCase().contains(kataKunci);
+
+                          return cocokKategori && cocokJudul;
+                        })
+                        .toList(growable: false);
 
                     if (tampil.isEmpty) {
                       return _buildKosong();
                     }
 
-                    return _buildDaftar(tampil);
+                    return _buildDaftar(tampil, semua);
                   },
             ),
           ),

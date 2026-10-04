@@ -91,8 +91,7 @@ class AnnouncementListScreen extends ConsumerWidget {
                       CircularProgressIndicator(color: Color(0xFF0284C7)),
                       SizedBox(height: 16),
                       Text(
-                        'Memuat pengumuman '
-                        'dari server...',
+                        'Memuat pengumuman dari server...',
                         style: TextStyle(
                           color: Color(0xFF64748B),
                           fontSize: 13,
@@ -123,14 +122,24 @@ class AnnouncementListScreen extends ConsumerWidget {
                     itemBuilder: (BuildContext context, int index) {
                       final Announcement item = items[index];
 
+                      final int jumlahKategori = items
+                          .where(
+                            (Announcement data) =>
+                                data.category.toLowerCase() ==
+                                item.category.toLowerCase(),
+                          )
+                          .length;
+
                       return AnnouncementCard(
                         announcement: item,
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute<void>(
-                              builder: (_) =>
-                                  AnnouncementDetailScreen(announcement: item),
+                              builder: (_) => AnnouncementDetailScreen(
+                                announcement: item,
+                                jumlahKategori: jumlahKategori,
+                              ),
                             ),
                           );
                         },
