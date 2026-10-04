@@ -1,26 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const PoliwangiProfileApp());
-}
-
-class PoliwangiProfileApp extends StatelessWidget {
-  const PoliwangiProfileApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Profil Mahasiswa TRPL',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0D9488)),
-        useMaterial3: true,
-      ),
-      home: const ProfileScreen(),
-    );
-  }
-}
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -218,7 +197,6 @@ class ProfileScreen extends StatelessWidget {
 
 // WIDGET _INFO ROW
 // Tahap 7.3
-
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -259,9 +237,7 @@ class _InfoRow extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-
               const SizedBox(height: 2),
-
               Text(
                 value,
                 style: const TextStyle(
@@ -280,7 +256,6 @@ class _InfoRow extends StatelessWidget {
 
 // WIDGET _PROFILE INFO ROW
 // Tantangan 2
-
 class _ProfileInfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -321,9 +296,7 @@ class _ProfileInfoRow extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-
               const SizedBox(height: 2),
-
               Text(
                 value,
                 style: const TextStyle(
