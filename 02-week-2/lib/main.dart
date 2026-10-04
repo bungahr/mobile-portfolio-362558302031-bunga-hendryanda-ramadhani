@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'modul_02/study_kasus/ruang_praktikum.dart';
+
+import 'modul_02/academic_dashboard_screen.dart';
 
 void main() {
   runApp(const Modul02DosenApp());
@@ -13,8 +14,7 @@ class Modul02DosenApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Modul 02 Dashboard Akademik',
-      // home: AcademicDashboardScreen(),
-      home: RuangPraktikum(),
+      home: AcademicDashboardScreen(),
     );
   }
 }

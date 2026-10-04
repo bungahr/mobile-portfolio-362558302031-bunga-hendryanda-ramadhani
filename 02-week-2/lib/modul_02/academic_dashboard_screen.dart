@@ -14,7 +14,22 @@ class AcademicDashboardScreen extends StatefulWidget {
 
 class _AcademicDashboardScreenState extends State<AcademicDashboardScreen> {
   final List<Course> _courses = Course.getSampleCourses();
+
   bool _isDarkMode = false;
+
+  String _selectedCategory = 'Semua';
+
+  int get totalSks => _courses.fold(0, (sum, course) => sum + course.sks);
+
+  List<Course> get _filteredCourses {
+    if (_selectedCategory == 'Semua') {
+      return _courses;
+    }
+
+    return _courses
+        .where((course) => course.category == _selectedCategory)
+        .toList();
+  }
 
   void _toggleDarkMode() {
     setState(() {
@@ -52,37 +67,50 @@ class _AcademicDashboardScreenState extends State<AcademicDashboardScreen> {
             ),
           ],
         ),
-        // LayoutBuilder membaca ukuran layar untuk menentukan tata letak responsif
+
         body: LayoutBuilder(
           builder: (context, constraints) {
-            // Breakpoint 600dp: Tablet / Landscape menggunakan 2 kolom
             if (constraints.maxWidth >= 600) {
               return Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Kolom kiri: banner profil
-                    const Expanded(
+                    Expanded(
                       flex: 2,
-                      child: SingleChildScrollView(child: HeaderBanner()),
+                      child: SingleChildScrollView(
+                        child: HeaderBanner(totalSks: totalSks),
+                      ),
                     ),
+
                     const SizedBox(width: 20),
-                    // Kolom kanan: grid 2 kolom daftar mata kuliah
+
                     Expanded(
                       flex: 3,
-                      child: GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 1.4,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildCategoryFilter(),
+                          const SizedBox(height: 16),
+
+                          Expanded(
+                            child: GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 16,
+                                    mainAxisSpacing: 16,
+                                    mainAxisExtent: 230,
+                                  ),
+                              itemCount: _filteredCourses.length,
+                              itemBuilder: (context, index) {
+                                return CourseCard(
+                                  course: _filteredCourses[index],
+                                );
+                              },
                             ),
-                        itemCount: _courses.length,
-                        itemBuilder: (context, index) {
-                          return CourseCard(course: _courses[index]);
-                        },
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -90,26 +118,53 @@ class _AcademicDashboardScreenState extends State<AcademicDashboardScreen> {
               );
             }
 
-            // Default (smartphone): tata letak 1 kolom vertikal
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const HeaderBanner(),
+                HeaderBanner(totalSks: totalSks),
                 const SizedBox(height: 16),
+
+                _buildCategoryFilter(),
+
+                const SizedBox(height: 16),
+
                 Text(
-                  'Mata Kuliah Semester 5 (${_courses.length} Terdaftar)',
+                  'Mata Kuliah Semester 3 '
+                  '(${_filteredCourses.length} Terdaftar)',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 12),
-                ..._courses.map((course) => CourseCard(course: course)),
+
+                ..._filteredCourses.map((course) => CourseCard(course: course)),
               ],
             );
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildCategoryFilter() {
+    return Wrap(
+      spacing: 8.0,
+      runSpacing: 8.0,
+      children: ['Semua', 'Teori', 'Praktikum'].map((category) {
+        return ChoiceChip(
+          label: Text(category),
+          selected: _selectedCategory == category,
+          onSelected: (selected) {
+            if (selected) {
+              setState(() {
+                _selectedCategory = category;
+              });
+            }
+          },
+        );
+      }).toList(),
     );
   }
 }
