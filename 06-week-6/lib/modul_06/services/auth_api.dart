@@ -15,6 +15,7 @@ class AuthApi {
   static const String sandiDemo = 'belajar123';
   static const String emailTerkunci = 'terkunci@trpl.test';
   static const String emailServerGangguan = 'gangguan@trpl.test';
+  static const String emailBelumVerifikasi = 'verifikasi@trpl.test';
 
   final Duration tunda;
 
@@ -38,6 +39,13 @@ class AuthApi {
         'Akun terkunci sementara karena terlalu banyak percobaan. '
         'Coba lagi beberapa menit lagi.',
         kode: 423,
+      );
+    }
+
+    if (emailBersih == emailBelumVerifikasi) {
+      throw const AuthException(
+        'Akun belum diverifikasi. Silakan hubungi administrator.',
+        kode: 403,
       );
     }
 

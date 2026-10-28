@@ -1,0 +1,17 @@
+Verifikasi Manual Fase B - Modul 06
+
+Aplikasi dijalankan menggunakan:
+flutter run -t lib/main_pengayaan.dart
+
+Bukti screenshot tersedia di evidence/screenshots/:
+- fase-b-01-login.png
+- fase-b-02-login-berhasil.png
+- fase-b-03-diagnostik-memori.png
+- fase-b-04-shared-preferences.png
+- fase-b-05-secure-storage.png
+- fase-b-06-perbarui-sesi.png
+- fase-b-07-logout.png
+
+Catatan:
+Fase B telah diverifikasi melalui pengujian manual dan bukti screenshot.
+Belum tersedia pengujian otomatis khusus Fase B.

@@ -20,8 +20,8 @@ class KartuSesi extends StatelessWidget {
 
   String get _tokenTersamar {
     if (sesi.token.isEmpty) return '(kosong)';
-    if (sesi.token.length <= 6) return '••••••';
-    return '${sesi.token.substring(0, 6)}${'•' * 12}';
+    if (sesi.token.length <= 6) return '******';
+    return '${sesi.token.substring(0, 6)}${'*' * 12}';
   }
 
   String formatWaktu(DateTime waktu) {
@@ -97,7 +97,11 @@ class KartuSesi extends StatelessWidget {
                   ? sesi.masukPada
                   : formatWaktu(waktuMasuk),
             ),
-            _BarisInfo(label: 'Sisa sesi', nilai: formatSisa(sisa)),
+            _BarisInfo(
+              label: 'Sisa sesi',
+              nilai: formatSisa(sisa),
+              warna: sisa < const Duration(minutes: 5) ? Colors.red : null,
+            ),
             _BarisInfo(
               label: 'Token',
               nilai: tampilkanToken ? sesi.token : _tokenTersamar,
@@ -125,10 +129,11 @@ class KartuSesi extends StatelessWidget {
 }
 
 class _BarisInfo extends StatelessWidget {
-  const _BarisInfo({required this.label, required this.nilai});
+  const _BarisInfo({required this.label, required this.nilai, this.warna});
 
   final String label;
   final String nilai;
+  final Color? warna;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +150,9 @@ class _BarisInfo extends StatelessWidget {
             ),
           ),
           const Text(': '),
-          Expanded(child: SelectableText(nilai)),
+          Expanded(
+            child: Text(nilai, style: TextStyle(color: warna)),
+          ),
         ],
       ),
     );

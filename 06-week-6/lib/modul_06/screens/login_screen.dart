@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'dart:async';
+
 import '../models/sesi_pengguna.dart';
 import '../services/auth_api.dart';
 import '../services/sesi_memori.dart';
@@ -33,11 +35,20 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _pesanGagal;
   SesiPengguna? _sesi;
   bool _sedangKeluar = false;
+  Timer? _timerSesi;
+  int _generasiLogin = 0;
 
   @override
   void initState() {
     super.initState();
     _pulihkanSesi();
+    _timerSesi = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+
+      if (_status == StatusAuth.masuk && _sesi != null) {
+        setState(() {});
+      }
+    });
   }
 
   Future<void> _pulihkanSesi() async {
@@ -68,6 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_status == StatusAuth.memproses) return;
     if (!_formKey.currentState!.validate()) return;
 
+    final generasi = ++_generasiLogin;
+
     setState(() {
       _status = StatusAuth.memproses;
       _pesanGagal = null;
@@ -79,8 +92,11 @@ class _LoginScreenState extends State<LoginScreen> {
         sandi: _kataSandiController.text,
       );
 
+      if (!mounted || generasi != _generasiLogin) return;
+
       await widget.sesiMemori.simpan(sesi);
-      if (!mounted) return;
+
+      if (!mounted || generasi != _generasiLogin) return;
 
       setState(() {
         _sesi = sesi;
@@ -88,20 +104,32 @@ class _LoginScreenState extends State<LoginScreen> {
         _kataSandiController.clear();
       });
     } on AuthException catch (e) {
-      if (!mounted) return;
+      if (!mounted || generasi != _generasiLogin) return;
 
       setState(() {
         _pesanGagal = e.pesan;
         _status = StatusAuth.gagal;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || generasi != _generasiLogin) return;
 
       setState(() {
         _pesanGagal = 'Terjadi kesalahan tak terduga. Coba lagi.';
         _status = StatusAuth.gagal;
       });
     }
+  }
+
+  void _batalkanLogin() {
+    if (_status != StatusAuth.memproses) return;
+
+    ++_generasiLogin;
+
+    setState(() {
+      _status = StatusAuth.keluar;
+      _pesanGagal = null;
+      _kataSandiController.clear();
+    });
   }
 
   Future<void> _logout() async {
@@ -128,6 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailController.dispose();
     _kataSandiController.dispose();
+    _timerSesi?.cancel();
     super.dispose();
   }
 
@@ -291,6 +320,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               )
                             : const Text('Login'),
                       ),
+                      if (sedangMemproses) ...[
+                        const SizedBox(height: 8),
+                        OutlinedButton(
+                          onPressed: _batalkanLogin,
+                          child: const Text('Batalkan login'),
+                        ),
+                      ],
                       const SizedBox(height: 20),
                       const Divider(),
                       const Text(
@@ -306,6 +342,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         'terkunci@trpl.test\n\n'
                         'Simulasi gangguan server:\n'
                         'gangguan@trpl.test\n\n'
+                        'Akun belum diverifikasi:\n'
+                        'verifikasi@trpl.test\n\n'
                         'Email lainnya dapat digunakan untuk '
                         'menguji pesan kesalahan login.',
                       ),
