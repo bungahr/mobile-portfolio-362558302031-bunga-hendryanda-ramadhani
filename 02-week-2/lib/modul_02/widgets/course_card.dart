@@ -5,13 +5,18 @@ import '../models/course.dart';
 class CourseCard extends StatelessWidget {
   final Course course;
 
-  const CourseCard({super.key, required this.course});
+  const CourseCard({
+    super.key,
+    required this.course,
+  });
 
   void _showCourseDetail(BuildContext context) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
       ),
       builder: (context) {
         return Padding(
@@ -22,14 +27,17 @@ class CourseCard extends StatelessWidget {
             children: [
               Text(
                 '${course.code} - ${course.name}',
-                style: Theme.of(context).textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 16),
 
               Row(
                 children: [
-                  CircleAvatar(child: Icon(Icons.person)),
+                  CircleAvatar(
+                    child: Icon(Icons.person),
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -76,7 +84,9 @@ class CourseCard extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () => _showCourseDetail(context),
@@ -158,7 +168,8 @@ class CourseCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Progres Sesi',

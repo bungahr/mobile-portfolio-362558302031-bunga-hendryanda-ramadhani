@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'modul_01/profile_screen.dart';
 
 void main() {
@@ -15,7 +14,9 @@ class PoliwangiProfileApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Profil Mahasiswa TRPL',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0D9488)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF0D9488),
+        ),
         useMaterial3: true,
       ),
       home: const ProfileScreen(),
