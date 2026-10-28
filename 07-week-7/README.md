@@ -1,5 +1,15 @@
 # Week 7 — Refactoring Fitur Tugas
 
+## Identitas Mahasiswa
+
+- **Nama:** Bunga Hendryanda Ramadhani
+- **NIM:** 362558302031
+- **Program Studi:** D4 Teknologi Rekayasa Perangkat Lunak
+- **Kelas:** 2CTRPL
+- **Mata Kuliah:** Pemrograman Perangkat Bergerak
+- **Institusi:** Politeknik Negeri Banyuwangi
+
+
 ## 1. Deskripsi
 
 Proyek ini merupakan implementasi materi Week 7 tentang pemisahan tanggung jawab pada aplikasi Flutter. Fitur yang digunakan adalah daftar tugas mahasiswa, mulai dari menampilkan daftar, menambah tugas, mengubah status selesai, sampai menghapus tugas.
