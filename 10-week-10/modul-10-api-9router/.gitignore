@@ -1,0 +1,20 @@
+﻿# Rahasia API
+proxy/.env.local
+.env
+.env.*
+
+# Flutter dan Dart
+.dart_tool/
+.packages
+.pub/
+build/
+
+# Node.js
+node_modules/
+
+# Sistem operasi
+.DS_Store
+Thumbs.db
+
+# Metadata arsip Mac
+__MACOSX/
