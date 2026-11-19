@@ -2,23 +2,23 @@ import '../domain/kontrak_layanan_ai.dart';
 
 /// Penyedia AI sederhana dengan jawaban tetap untuk latihan Modul 10.
 class LayananAiTerbatas implements LayananAi {
-  /// Jawaban tetap yang diberikan untuk setiap perintah.
   static const String jawaban =
       'Flutter adalah framework dari Google untuk membuat aplikasi '
       'multiplatform menggunakan bahasa pemrograman Dart.';
 
-  /// Nama penyedia layanan.
   @override
   String get nama => 'AI Terbatas (Jawaban Tetap)';
 
-  /// Mengirim perintah dan menghasilkan jawaban tetap.
   @override
   Stream<String> kirim(String perintah) async* {
-    yield jawaban;
-  }
-  // Stream<String> kirim(String perintah) async* {}
+    final List<String> kata = jawaban.split(' ');
 
-  /// Menutup layanan. Aman dipanggil berulang kali.
+    for (int i = 0; i < kata.length; i++) {
+      final String potongan = i == kata.length - 1 ? kata[i] : '${kata[i]} ';
+      yield potongan;
+    }
+  }
+
   @override
   void tutup() {}
 }

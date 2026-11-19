@@ -15,7 +15,19 @@ void main() {
       layanan.tutup();
     });
 
-    test('Dua perintah berbeda menghasilkan jawaban tetap yang sama', () async {
+    test('Menghasilkan beberapa potongan dengan isi jawaban lengkap', () async {
+      final layanan = LayananAiTerbatas();
+
+      final List<String> potongan =
+          await layanan.kirim('Jelaskan Flutter').toList();
+
+      expect(potongan.length, greaterThan(1));
+      expect(potongan.join(), LayananAiTerbatas.jawaban);
+
+      layanan.tutup();
+    });
+
+    test('Dua perintah menghasilkan jawaban tetap yang sama', () async {
       final layanan = LayananAiTerbatas();
 
       final jawabanPertama = await layanan.kirim('Apa itu Flutter?').join();
@@ -36,15 +48,15 @@ void main() {
         layanan.tutup();
       }, returnsNormally);
     });
-  });
 
-  test('ViewModelObrolan berhasil memakai LayananAiTerbatas', () async {
-    final model = ViewModelObrolan(layanan: LayananAiTerbatas());
-    addTearDown(model.dispose);
+    test('ViewModelObrolan berhasil memakai LayananAiTerbatas', () async {
+      final model = ViewModelObrolan(layanan: LayananAiTerbatas());
+      addTearDown(model.dispose);
 
-    await model.kirim('Jelaskan Flutter');
+      await model.kirim('Jelaskan Flutter');
 
-    expect(model.status, isA<ObrolanSiap>());
-    expect(model.pesan.last.isi, contains(LayananAiTerbatas.jawaban));
+      expect(model.status, isA<ObrolanSiap>());
+      expect(model.pesan.last.isi, contains(LayananAiTerbatas.jawaban));
+    });
   });
 }

@@ -1,4 +1,4 @@
-# Modul 10 — Integrasi AI pada Flutter
+﻿# Modul 10 â€” Integrasi AI pada Flutter
 
 **Nama:** Bunga Hendryanda Ramadhani  
 **Program Studi:** D4 Teknologi Rekayasa Perangkat Lunak  
@@ -17,40 +17,40 @@ Aplikasi dikembangkan menggunakan Flutter dan Dart dengan pendekatan pemisahan a
 
 Beberapa fitur yang terdapat pada aplikasi:
 
-1. **Chat AI** — pengguna dapat mengirim pesan dan menerima respons dari layanan AI.
-2. **Streaming Respons** — respons ditampilkan secara bertahap sehingga pengguna tidak perlu menunggu seluruh jawaban selesai.
-3. **Pembatasan Kuota** — aplikasi membatasi jumlah permintaan agar penggunaan layanan lebih terkontrol.
-4. **Penyaringan API Key** — kredensial tidak ditampilkan secara langsung dalam pesan atau keluaran aplikasi.
-5. **Penyamaran Data Sensitif** — data pribadi seperti email dan informasi sensitif lainnya diperiksa sebelum diproses.
-6. **Mode Ringkas** — aplikasi dapat menggunakan respons yang lebih singkat.
-7. **Simulasi Kegagalan** — digunakan untuk menguji bagaimana aplikasi menangani kondisi ketika layanan AI mengalami kesalahan.
+1. **Chat AI** â€” pengguna dapat mengirim pesan dan menerima respons dari layanan AI.
+2. **Streaming Respons** â€” respons ditampilkan secara bertahap sehingga pengguna tidak perlu menunggu seluruh jawaban selesai.
+3. **Pembatasan Kuota** â€” aplikasi membatasi jumlah permintaan agar penggunaan layanan lebih terkontrol.
+4. **Penyaringan API Key** â€” kredensial tidak ditampilkan secara langsung dalam pesan atau keluaran aplikasi.
+5. **Penyamaran Data Sensitif** â€” data pribadi seperti email dan informasi sensitif lainnya diperiksa sebelum diproses.
+6. **Mode Ringkas** â€” aplikasi dapat menggunakan respons yang lebih singkat.
+7. **Simulasi Kegagalan** â€” digunakan untuk menguji bagaimana aplikasi menangani kondisi ketika layanan AI mengalami kesalahan.
 
 ## 3. Struktur Folder
 
 ```text
 classroom-template/
-├── docs/
-│   └── verification/
-├── evidence/
-│   ├── output/
-│   └── screenshots/
-├── lib/
-│   ├── main.dart
-│   ├── main_starter.dart
-│   └── modul_10/
-│       ├── data/
-│       ├── domain/
-│       ├── presentation/
-│       ├── screens/
-│       ├── widgets/
-│       ├── demo_obrolan.dart
-│       └── modul_10_app.dart
-├── test/
-│   ├── modul_10_test.dart
-│   ├── modul_10_mahasiswa_test.dart
-│   └── widget_test.dart
-├── pubspec.yaml
-└── README.md
+â”œâ”€â”€ docs/
+â”‚   â””â”€â”€ verification/
+â”œâ”€â”€ evidence/
+â”‚   â”œâ”€â”€ output/
+â”‚   â””â”€â”€ screenshots/
+â”œâ”€â”€ lib/
+â”‚   â”œâ”€â”€ main.dart
+â”‚   â”œâ”€â”€ main_starter.dart
+â”‚   â””â”€â”€ modul_10/
+â”‚       â”œâ”€â”€ data/
+â”‚       â”œâ”€â”€ domain/
+â”‚       â”œâ”€â”€ presentation/
+â”‚       â”œâ”€â”€ screens/
+â”‚       â”œâ”€â”€ widgets/
+â”‚       â”œâ”€â”€ demo_obrolan.dart
+â”‚       â””â”€â”€ modul_10_app.dart
+â”œâ”€â”€ test/
+â”‚   â”œâ”€â”€ modul_10_test.dart
+â”‚   â”œâ”€â”€ modul_10_mahasiswa_test.dart
+â”‚   â””â”€â”€ widget_test.dart
+â”œâ”€â”€ pubspec.yaml
+â””â”€â”€ README.md
 ```
 
 ## 4. Cara Menjalankan Aplikasi
@@ -177,3 +177,29 @@ Dari praktikum ini, saya mendapatkan pengalaman dalam mengembangkan aplikasi yan
 ---
 
 **Catatan:** Proyek tambahan integrasi 9router dan Ollama diletakkan secara terpisah pada folder `modul-10-api-9router`, sehingga tidak digabungkan dengan starter mahasiswa pada Classroom Template.
+## 10. Pengujian Pengayaan
+
+### A. Layanan AI Terbatas
+Layanan AI Terbatas dibuat menggunakan kontrak `LayananAi` dan mengirim jawaban dalam beberapa potongan. Pengujian memastikan jumlah potongan lebih dari satu, isi gabungan tetap sesuai jawaban, dan layanan dapat digunakan oleh `ViewModelObrolan` tanpa mengubah kode ViewModel.
+
+### B. Pembatasan Kuota
+Layanan lokal menggunakan batas lima permintaan dalam satu menit. Lima permintaan pertama diterima, sedangkan permintaan keenam ditolak ketika jendela waktu belum berakhir.
+
+### C. Penyaringan Pesan
+Pengujian penyaring dilakukan dengan tiga jenis masukan:
+
+| Masukan | Hasil | Keterangan |
+|---|---|---|
+| Kunci API tiruan | Ditolak | Terdeteksi pola yang menyerupai kunci API |
+| Alamat email rekaan | Disamarkan | Alamat email diganti menjadi `[surel disamarkan]` |
+| Pertanyaan biasa | Diizinkan | Tidak terdeteksi sebagai data sensitif |
+
+Pengujian otomatis pengayaan terdapat pada `test/pengayaan_modul_10_test.dart`. Hasilnya tersimpan pada `docs/verification/pengayaan_modul_10_test.txt`.
+
+### D. Bukti Tambahan
+| No. | Nama Screenshot | Keterangan |
+|---|---|---|
+| 18 | `10-18-test-pengayaan-kuota-penyaring.png` | Pengujian batas kuota dan penyaring pesan |
+
+Rekap percobaan tersedia pada `docs/verification/pengayaan_modul_10.md`.
+
